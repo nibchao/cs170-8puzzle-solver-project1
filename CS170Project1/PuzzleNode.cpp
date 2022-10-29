@@ -107,9 +107,9 @@ Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d
 
 	cout << "\nThis is the default puzzle.\n";
 	cout << "\nDepth 8\n";
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < depth8.size(); i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j < depth8.size(); j++)
 		{
 			cout << depth8[i][j];
 		}
@@ -182,7 +182,7 @@ int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int algorithmChoi
 	return misplacedTilesNum;
 }
 
-void PuzzleNode::search(Node* node, int queueingFunction)
+bool PuzzleNode::search(Node* node, int queueingFunction)
 {
 	/*
 	*
@@ -212,6 +212,17 @@ void PuzzleNode::search(Node* node, int queueingFunction)
 
 	int algorithmChoice = queueingFunction;
 
+	if (gq.empty())
+	{
+		cout << "fail";
+		return false;
+	}
+	gq.pop();
+	if (goal)
+	{
+		return true;
+	}
+
 	vector<vector<int>> finalState
 	{
 		{1, 2, 3},
@@ -221,24 +232,60 @@ void PuzzleNode::search(Node* node, int queueingFunction)
 
 	int blankPosition = 0;
 
-	for (int i = 0; i < finalState.size(); i++)
+	bool stop = false;
+	for (int i = 0; i < finalState.size() && !stop; i++) // referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops
 	{
-		for (int j = 0; j < finalState.size(); j++)
+		for (int j = 0; j < finalState.size() && !stop; j++)
 		{
+			if (node->currentBoard.at(i).at(j) == 0)
+			{
+				stop = true;
+				break;
+			}
+			if (stop)
+			{
+				break;
+			}
 			blankPosition++;
 		}
 	}
 
-	if (queueingFunction == 1) // - uniform cost search = bfs = A* with h(n) hardcoded to 0 https://www.geeksforgeeks.org/uniform-cost-search-dijkstra-for-large-graphs/
+	if (blankPosition == 0) // [0, 0] top left - check [1, 0] and [0, 1]
 	{
-
+		 
 	}
-	else if (queueingFunction == 2) // - A* with misplaced tile heuristic = how many tiles on the board are wrong from desired goal state of while disregarding number of moves to move each number to correct position 
+	else if (blankPosition == 1) // [1, 0] top middle - check [0, 0], [2, 0], [1, 1]
 	{
-
+		
 	}
-	else if (queueingFunction == 3) // - A* with Manhattan distance heuristic = how many moves are needed to move the wrong tiles into the correct spot while disregarding other tiles that may be in its way to move it to the correct position
+	else if (blankPosition == 2) // [2, 0] top right - check [1, 0], [2, 1]
 	{
-
+		
 	}
+	else if (blankPosition == 3) // [0, 1] middle left - check [0, 0], [1, 1], [0, 2]
+	{
+		
+	}
+	else if (blankPosition == 4) // [1, 1] middle - check [1, 0], [0, 1], [2, 1], [1, 2]
+	{
+		
+	}
+	else if (blankPosition == 5) // [2, 1] middle right - check [2, 0], [1, 1], [2, 2]
+	{
+		
+	}
+	else if (blankPosition == 6) // [0, 2] bottom left - check [0, 1], [1, 2]
+	{
+		
+	}
+	else if (blankPosition == 7) // [1, 2] bottom middle - check [0, 2], [1, 1], [2, 2]
+	{
+		
+	}
+	else // [2, 2] bottom right - check [1, 2], [2, 1]
+	{
+		
+	}
+
+	countMisplacedTiles(node->currentBoard, queueingFunction);
 }

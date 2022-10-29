@@ -7,9 +7,14 @@ int main()
 {
 	PuzzleNode puzzleObj;
 	Node* node;
+	//Node* node = new Node;
+	//node->currentBoard.push_back({ 1, 0, 3 });
+	//node->currentBoard.push_back({ 1, 1, 6 });
+	//node->currentBoard.push_back({ 7, 1, 8 });
 
 	int input = 0;
 	int algorithmInput = 0;
+	//puzzleObj.search(node, 1);
 	do
 	{
 		input = menu();

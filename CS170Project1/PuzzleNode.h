@@ -48,6 +48,6 @@ class PuzzleNode
 		Node* defaultPuzzle();
 		void printNodes();
 		int countMisplacedTiles(vector<vector<int>>, int);
-		void search(Node*, int);
+		bool search(Node*, int);
 };
 #endif
