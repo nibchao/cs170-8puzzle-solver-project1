@@ -10,10 +10,10 @@ using namespace std;
 
 struct Node
 {
-	Node* up;
 	Node* left;
+	Node* midleft;
+	Node* midright;
 	Node* right;
-	Node* down;
 	int hn; // h(n) = estimated distance to the goal
 	int gn; // g(n) = cost to get to a node
 	vector<vector<int>> currentBoard;
@@ -28,11 +28,11 @@ class PuzzleNode
 			{
 				if (node1->hn + node1->gn > node2->hn + node2->gn)
 				{
-					return false;
+					return true;
 				}
 				else
 				{
-					return true;
+					return false;
 				}
 			}
 	};

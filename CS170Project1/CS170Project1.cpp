@@ -7,50 +7,9 @@ int main()
 {
 	PuzzleNode puzzleObj;
 	Node* node;
-	/*Node* node = new Node;
-	node->currentBoard.push_back({ 1, 2, 3 });
-	node->currentBoard.push_back({ 4, 5, 6 });
-	node->currentBoard.push_back({ 7, 8, 0 });
-
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			cout << node->currentBoard[i][j] << " ";
-		}
-		cout << "\n";
-	}
-
-	cout << "\nspacer\n";
-
-	vector<vector<int>> swap10 = node->currentBoard;
-	vector<vector<int>> swap01 = swap10;
-
-	swap(swap10[0][0], swap10[2][0]);
-	cout << "swap10\n";
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			cout << swap10[i][j] << " ";
-		}
-		cout << "\n";
-	}
-
-	cout << "\n\nswap01\n";
-	swap(swap01[0][0], swap01[0][1]);
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			cout << swap01[i][j] << " ";
-		}
-		cout << "\n";
-	}*/
 
 	int input = 0;
 	int algorithmInput = 0;
-	//puzzleObj.search(node, 1);
 	do
 	{
 		input = menu();
