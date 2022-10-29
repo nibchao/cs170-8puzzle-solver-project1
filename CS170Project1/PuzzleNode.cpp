@@ -3,12 +3,11 @@
 PuzzleNode::PuzzleNode()
 {
 	head = nullptr;
-	algorithmChoice = 0;
 	nodesExpanded = 0;
 	goal = false;
 }
 
-void PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
 {
 	Node* node = new Node;
 	node->up = nullptr;
@@ -72,9 +71,11 @@ void PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-v
 	head = node;
 
 	gq.push(node);
+
+	return node;
 }
 
-void PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
 {
 	Node* node = new Node;
 	node->up = nullptr;
@@ -122,6 +123,8 @@ void PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d-
 	head = node;
 
 	gq.push(node);
+
+	return node;
 }
 
 void PuzzleNode::printNodes()
@@ -129,24 +132,7 @@ void PuzzleNode::printNodes()
 	Node* currentNode = head;
 }
 
-void PuzzleNode::setAlgorithmChoice(int algorithmNumber)
-{
-	algorithmChoice = algorithmNumber;
-	if (algorithmChoice == 1)
-	{ 
-		cout << algorithmChoice << " was selected. Solving the puzzle using Uniform Cost Search.\n\n";
-	}
-	else if (algorithmChoice == 2)
-	{
-		cout << algorithmChoice << " was selected. Solving the puzzle using Misplaced Tile Heuristic.\n\n";
-	}
-	else if (algorithmChoice == 3)
-	{
-		cout << algorithmChoice << " was selected. Solving the puzzle using Manhattan Distance Heuristic.\n\n";
-	}
-}
-
-int PuzzleNode::countMisplacedTiles(vector<vector<int>> board)
+int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int algorithmChoice)
 {
 	vector<vector<int>> finalState
 	{
@@ -196,7 +182,7 @@ int PuzzleNode::countMisplacedTiles(vector<vector<int>> board)
 	return misplacedTilesNum;
 }
 
-void PuzzleNode::search(Node* node)
+void PuzzleNode::search(Node* node, int queueingFunction)
 {
 	/*
 	*
@@ -224,6 +210,8 @@ void PuzzleNode::search(Node* node)
 	// check if any neighbor is goal, then return success
 	// apply misplacedTilesNum to each neighbor and add to gq if not in gq or second separate vector
 
+	int algorithmChoice = queueingFunction;
+
 	vector<vector<int>> finalState
 	{
 		{1, 2, 3},
@@ -241,15 +229,15 @@ void PuzzleNode::search(Node* node)
 		}
 	}
 
-	if (algorithmChoice == 1) // - uniform cost search = bfs = A* with h(n) hardcoded to 0 https://www.geeksforgeeks.org/uniform-cost-search-dijkstra-for-large-graphs/
+	if (queueingFunction == 1) // - uniform cost search = bfs = A* with h(n) hardcoded to 0 https://www.geeksforgeeks.org/uniform-cost-search-dijkstra-for-large-graphs/
 	{
 
 	}
-	else if (algorithmChoice == 2) // - A* with misplaced tile heuristic = how many tiles on the board are wrong from desired goal state of while disregarding number of moves to move each number to correct position 
+	else if (queueingFunction == 2) // - A* with misplaced tile heuristic = how many tiles on the board are wrong from desired goal state of while disregarding number of moves to move each number to correct position 
 	{
 
 	}
-	else if (algorithmChoice == 3) // - A* with Manhattan distance heuristic = how many moves are needed to move the wrong tiles into the correct spot while disregarding other tiles that may be in its way to move it to the correct position
+	else if (queueingFunction == 3) // - A* with Manhattan distance heuristic = how many moves are needed to move the wrong tiles into the correct spot while disregarding other tiles that may be in its way to move it to the correct position
 	{
 
 	}
