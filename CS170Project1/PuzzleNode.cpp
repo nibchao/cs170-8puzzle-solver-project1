@@ -203,25 +203,11 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 	*		nodes = queueing-function(nodes, expand(node, problem operators));
 	*	}
 	*/
-	// remove top node in gq
-	// push this node to a separate vector
-	// check if the node was goal
 	// expand the node by looking at its neighbors, set neighbor node gn = node->gn + 1 for all neighbors since every neighbor of the start node is 1 level down the "tree"
 	// check if any neighbor is goal, then return success
 	// apply misplacedTilesNum to each neighbor and add to gq if not in gq or second separate vector
 
 	int algorithmChoice = queueingFunction;
-
-	if (gq.empty())
-	{
-		cout << "fail";
-		return false;
-	}
-	gq.pop();
-	if (goal)
-	{
-		return true;
-	}
 
 	vector<vector<int>> finalState
 	{
@@ -229,6 +215,18 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		{4, 5, 6},
 		{7, 8, 0}
 	};
+
+	if (gq.empty())
+	{
+		cout << "fail";
+		return false;
+	}
+	gq.pop();
+	if (node->currentBoard == finalState)
+	{
+		goal = true;
+		return true;
+	}
 
 	int blankPosition = 0;
 
@@ -250,41 +248,93 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		}
 	}
 
-	if (blankPosition == 0) // [0, 0] top left - check [1, 0] and [0, 1]
+	// board is [y, x] instead of [x, y]
+	/*{ 0, 0 }, { 0, 1 }, { 0, 2 }
+	  { 1, 0 }, { 1, 1 }, { 1, 2 }
+	  { 2, 0 }, { 2, 1 }, { 2, 2 }*/
+	if (blankPosition == 0) // [0, 0] top left - check [0, 1] and [1, 0]
 	{
-		 
+		vector<vector<int>> swap01 = node->currentBoard;
+		vector<vector<int>> swap10 = swap01;
+
+		swap(swap01[0][0], swap01[0][1]);
+		swap(swap10[0][0], swap10[1][0]);
 	}
-	else if (blankPosition == 1) // [1, 0] top middle - check [0, 0], [2, 0], [1, 1]
+	else if (blankPosition == 1) // [0, 1] top middle - check [0, 0], [0, 2], [1, 1]
 	{
-		
+		vector<vector<int>> swap00 = node->currentBoard;
+		vector<vector<int>> swap02 = swap00;
+		vector<vector<int>> swap11 = swap00;
+
+		swap(swap00[0][1], swap00[0][0]);
+		swap(swap02[0][1], swap02[0][2]);
+		swap(swap11[0][1], swap11[1][1]);
 	}
-	else if (blankPosition == 2) // [2, 0] top right - check [1, 0], [2, 1]
+	else if (blankPosition == 2) // [0, 2] top right - check [0, 1], [1, 2]
 	{
-		
+		vector<vector<int>> swap01 = node->currentBoard;
+		vector<vector<int>> swap12 = swap01;
+
+		swap(swap01[0][2], swap01[0][1]);
+		swap(swap12[0][2], swap12[1][2]);
 	}
-	else if (blankPosition == 3) // [0, 1] middle left - check [0, 0], [1, 1], [0, 2]
+	else if (blankPosition == 3) // [1, 0] middle left - check [0, 0], [1, 1], [2, 0]
 	{
-		
+		vector<vector<int>> swap00 = node->currentBoard;
+		vector<vector<int>> swap11 = swap00;
+		vector<vector<int>> swap20 = swap00;
+
+		swap(swap00[1][0], swap00[0][0]);
+		swap(swap11[1][0], swap11[1][1]);
+		swap(swap20[1][0], swap20[2][0]);
 	}
-	else if (blankPosition == 4) // [1, 1] middle - check [1, 0], [0, 1], [2, 1], [1, 2]
+	else if (blankPosition == 4) // [1, 1] middle - check [1, 0], [0, 1], [1, 2], [2, 1]
 	{
-		
+		vector<vector<int>> swap10 = node->currentBoard;
+		vector<vector<int>> swap01 = swap10;
+		vector<vector<int>> swap12 = swap10;
+		vector<vector<int>> swap21 = swap10;
+
+		swap(swap10[1][1], swap10[1][0]);
+		swap(swap01[1][1], swap01[0][1]);
+		swap(swap12[1][1], swap12[1][2]);
+		swap(swap21[1][1], swap21[2][1]);
 	}
-	else if (blankPosition == 5) // [2, 1] middle right - check [2, 0], [1, 1], [2, 2]
+	else if (blankPosition == 5) // [1, 2] middle right - check [0, 2], [1, 1], [2, 2]
 	{
-		
+		vector<vector<int>> swap02 = node->currentBoard;
+		vector<vector<int>> swap11 = swap02;
+		vector<vector<int>> swap22 = swap02;
+
+		swap(swap02[1][2], swap02[0][2]);
+		swap(swap11[1][2], swap11[1][1]);
+		swap(swap22[1][2], swap22[2][2]);
 	}
-	else if (blankPosition == 6) // [0, 2] bottom left - check [0, 1], [1, 2]
+	else if (blankPosition == 6) // [2, 0] bottom left - check [1, 0], [2, 1]
 	{
-		
+		vector<vector<int>> swap10 = node->currentBoard;
+		vector<vector<int>> swap21 = swap10;
+
+		swap(swap10[2][0], swap10[1][0]);
+		swap(swap21[2][0], swap21[2][1]);
 	}
-	else if (blankPosition == 7) // [1, 2] bottom middle - check [0, 2], [1, 1], [2, 2]
+	else if (blankPosition == 7) // [2, 1] bottom middle - check [2, 0], [1, 1], [2, 2]
 	{
-		
+		vector<vector<int>> swap20 = node->currentBoard;
+		vector<vector<int>> swap11 = swap20;
+		vector<vector<int>> swap22 = swap20;
+
+		swap(swap20[2][1], swap20[2][0]);
+		swap(swap11[2][1], swap11[1][0]);
+		swap(swap22[2][1], swap22[2][2]);
 	}
 	else // [2, 2] bottom right - check [1, 2], [2, 1]
 	{
-		
+		vector<vector<int>> swap12 = node->currentBoard;
+		vector<vector<int>> swap21 = swap12;
+
+		swap(swap12[2][2], swap12[1][2]);
+		swap(swap21[2][2], swap21[2][1]);
 	}
 
 	countMisplacedTiles(node->currentBoard, queueingFunction);
