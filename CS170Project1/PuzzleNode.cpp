@@ -344,7 +344,7 @@ void PuzzleNode::queue(Node* node, int queueingFunction, int blankPosition)
 		vector<vector<int>> swap22 = swap20;
 
 		swap(swap20[2][1], swap20[2][0]);
-		swap(swap11[2][1], swap11[1][0]);
+		swap(swap11[2][1], swap11[1][1]);
 		swap(swap22[2][1], swap22[2][2]);
 
 		child(node, queueingFunction, swap20);
