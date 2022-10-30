@@ -12,6 +12,7 @@ PuzzleNode::PuzzleNode() // constructor
 	nodesExpanded = 0;
 	maxQueueSize = 0;
 	solutionDepth = 0;
+	head = nullptr;
 }
 
 /*
@@ -40,7 +41,9 @@ Node* PuzzleNode::createPuzzle()
 		node->currentBoard.push_back(customrow);
 		customrow.clear();
 	}
+	cout << "\nThis is the puzzle you entered.\n";
 	printBoard(node);
+	head = node;
 	gq.push(node);
 	return node;
 }
@@ -64,7 +67,9 @@ Node* PuzzleNode::defaultPuzzle()
 	node->currentBoard.push_back(depth8[0]);
 	node->currentBoard.push_back(depth8[1]);
 	node->currentBoard.push_back(depth8[2]);
+	cout << "\nThis is the default puzzle of depth 8.\n";
 	printBoard(node);
+	head = node;
 	gq.push(node);
 	return node;
 }
@@ -74,7 +79,10 @@ Node* PuzzleNode::defaultPuzzle()
 */
 void PuzzleNode::printBoard(Node* node)
 {
-	cout << "The best state to expand with a g(n) = " << node->gn << " and h(n) = " << node->hn << " is...\n";
+	if (head)
+	{
+		cout << "The best state to expand with a g(n) = " << node->gn << " and h(n) = " << node->hn << " is...\n";
+	}
 	for (int i = 0; i < node->currentBoard.size(); i++)
 	{
 		for (int j = 0; j < node->currentBoard.size(); j++)

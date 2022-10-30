@@ -50,6 +50,7 @@ class PuzzleNode
 		vector<vector<vector<int>>> visitedBoards; // vector of 2D vectors to store previous calculated game boards, used to prevent duplicate board calculations
 		int maxQueueSize;
 		int solutionDepth;
+		Node* head;
 	public:
 		PuzzleNode();
 		Node* createPuzzle();
