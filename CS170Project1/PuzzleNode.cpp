@@ -1,21 +1,25 @@
 #include "PuzzleNode.h"
 
-vector<vector<int>> finalState
+vector<vector<int>> finalState // represents the goal board state
 {
 	{1, 2, 3 },
 	{4, 5, 6 },
 	{7, 8, 0 }
 };
 
-PuzzleNode::PuzzleNode()
+PuzzleNode::PuzzleNode() // constructor
 {
 	nodesExpanded = 0;
-	goal = false;
 	maxQueueSize = 0;
 	solutionDepth = 0;
 }
 
-Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+/*
+* referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+* creates puzzle using user's inputted values
+* assumes user always inputs correct values, so program will break if any incorrect value is inputted
+*/
+Node* PuzzleNode::createPuzzle()
 {
 	Node* node = new Node;
 	node->left = nullptr; node->midleft = nullptr; node->midright = nullptr; node->right = nullptr;
@@ -41,7 +45,11 @@ Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-
 	return node;
 }
 
-Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+/*
+* referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
+* uses hardcoded puzzle board for program
+*/
+Node* PuzzleNode::defaultPuzzle()
 {
 	Node* node = new Node;
 	node->left = nullptr; node->midleft = nullptr; node->midright = nullptr; node->right = nullptr;
@@ -61,6 +69,9 @@ Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d
 	return node;
 }
 
+/*
+* prints g(n) and h(n) of current tree node and also prints its game board
+*/
 void PuzzleNode::printBoard(Node* node)
 {
 	cout << "The best state to expand with a g(n) = " << node->gn << " and h(n) = " << node->hn << " is...\n";
@@ -75,6 +86,10 @@ void PuzzleNode::printBoard(Node* node)
 	cout << "\n";
 }
 
+/*
+* counts number of incorrect tiles from goal board
+* depending on queueingFunction, it changes how it counts the number of incorrect tiles
+*/
 int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int queueingFunction)
 {
 	int misplacedTilesNum = 0;
@@ -113,7 +128,10 @@ int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int queueingFunct
 	return misplacedTilesNum;
 }
 
-// referenced https://www.gatevidyalay.com/tag/a-algorithm-for-8-puzzle-problem/ to better understand A* and how to get f(n)
+/*
+* referenced https://www.gatevidyalay.com/tag/a-algorithm-for-8-puzzle-problem/ to better understand A* and how to implement
+* main search function of program, roughly follows the pseudocode for general search algorithm
+*/
 bool PuzzleNode::search(Node* node, int queueingFunction)
 {
 	if (gq.empty())
@@ -124,7 +142,6 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 	gq.pop();
 	if (node->currentBoard == finalState)
 	{
-		goal = true;
 		cout << "Goal!\n";
 		cout << "Max Solution Depth: " << solutionDepth << "\n";
 		cout << "Nodes Expanded: " << nodesExpanded << "\n";
@@ -133,9 +150,14 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		return true;
 	}
 
+	/*
+	* referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops to implement stop to break out of nested for-loop
+	* used idea of moving the blank tile instead of a number to achieve goal
+	* this loop finds the index of the 0 "blank" tile in the current node's game board
+	*/
 	int blankPosition = 0;
 	bool stop = false;
-	for (int i = 0; i < finalState.size() && !stop; i++) // referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops
+	for (int i = 0; i < finalState.size() && !stop; i++)
 	{
 		for (int j = 0; j < finalState.size() && !stop; j++)
 		{
@@ -152,10 +174,18 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		}
 	}
 
-	// board is [y, x] instead of [x, y]
-	/*{ 0, 0 }, { 0, 1 }, { 0, 2 }
-	  { 1, 0 }, { 1, 1 }, { 1, 2 }
-	  { 2, 0 }, { 2, 1 }, { 2, 2 }*/
+	
+	/*
+	* board is [y, x] instead of [x, y]
+	* 
+	* [ 0, 0 ], [ 0, 1 ], [ 0, 2 ]
+	* [ 1, 0 ], [ 1, 1 ], [ 1, 2 ]
+	* [ 2, 0 ], [ 2, 1 ], [ 2, 2 ]
+	* 
+	* the nodes = "QUEUEING-FUNCTION" line is represented by this lengthy if-else if chain
+	* creates clone game boards then swaps certain values depending on the neighbors of the 0 "blank" tile
+	* sets the current node's childs (up to 4 child nodes) equal to a new node with the swapped game board values
+	*/
 	if (blankPosition == 0) // blank is [0, 0] top left - check [0, 1] and [1, 0]
 	{
 		vector<vector<int>> swap01 = node->currentBoard;
@@ -273,25 +303,26 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		child(node, queueingFunction, swap12);
 		child(node, queueingFunction, swap21);
 	}
-	if (maxQueueSize < gq.size())
+
+	if (maxQueueSize < gq.size()) // stores the highest number of nodes in the queue for max queue size
 	{
 		maxQueueSize = gq.size();
 	}
-	if (solutionDepth < gq.top()->gn)
+	if (solutionDepth < gq.top()->gn) // stores highest g(n) value for solution depth
 	{
 		solutionDepth = gq.top()->gn;
 	}
-	if (gq.top())
-	{
-		printBoard(gq.top());
-		search(gq.top(), queueingFunction);
-	}
+	printBoard(gq.top());
+	search(gq.top(), queueingFunction);
 	return false;
 }
 
+/*
+* function that creates a new child node containing the board with swapped values and g(n) + 1 to represent one level "deeper" on the tree
+*/
 void PuzzleNode::child(Node* node, int queueingFunction, vector<vector<int>> board)
 {
-	if (!duplicateBoardChecker(board))
+	if (!duplicateBoardChecker(board)) // checks if the swapped board is duplicate or not; if it is, don't create a new node
 	{
 		Node* swapBoard = new Node;
 		swapBoard->currentBoard = board;
@@ -319,6 +350,9 @@ void PuzzleNode::child(Node* node, int queueingFunction, vector<vector<int>> boa
 	}
 }
 
+/*
+* checks for duplicate boards by looping through a vector containing 2D vectors and searches for any matches with passed in board parameter
+*/
 bool PuzzleNode::duplicateBoardChecker(vector<vector<int>> board)
 {
 	for (int cnt = 0; cnt < visitedBoards.size(); cnt++)
