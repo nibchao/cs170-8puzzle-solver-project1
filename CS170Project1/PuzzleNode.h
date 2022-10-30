@@ -42,6 +42,7 @@ class PuzzleNode
 		bool goal;
 		priority_queue<Node*, vector<Node*>, customComparisonClass> gq; // referenced https://www.geeksforgeeks.org/priority-queue-in-cpp-stl/ and https://www.geeksforgeeks.org/implement-min-heap-using-stl/ for how to make a min-heap using priority queue to put lowest f(n) = g(n) + h(n)
 		vector<Node*> visitedNodes;
+		vector<vector<vector<int>>> visitedBoards;
 	public:
 		PuzzleNode();
 		Node* createPuzzle();
@@ -49,5 +50,10 @@ class PuzzleNode
 		void printNodes();
 		int countMisplacedTiles(vector<vector<int>>, int);
 		bool search(Node*, int);
+		void left(Node*, int, vector<vector<int>>);
+		void midleft(Node*, int, vector<vector<int>>);
+		void midright(Node*, int, vector<vector<int>>);
+		void right(Node*, int, vector<vector<int>>);
+		bool duplicateBoardChecker(vector<vector<int>>);
 };
 #endif

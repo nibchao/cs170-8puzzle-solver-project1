@@ -1,5 +1,12 @@
 #include "PuzzleNode.h"
 
+vector<vector<int>> finalState
+{
+	{1, 2, 3 },
+	{4, 5, 6 },
+	{7, 8, 0 }
+};
+
 PuzzleNode::PuzzleNode()
 {
 	head = nullptr;
@@ -35,25 +42,19 @@ Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-
 	cout << "\nEnter your own puzzle using 0 as the blank square. Put a space in between your numbers.\n";
 	cout << "Enter the first row: ";
 	cin >> square1 >> square2 >> square3;
-	customrow.push_back(square1);
-	customrow.push_back(square2);
-	customrow.push_back(square3);
+	customrow.push_back(square1); customrow.push_back(square2); customrow.push_back(square3);
 	custom.push_back(customrow);
 	node->currentBoard.push_back(customrow);
 	customrow.clear();
 	cout << "Enter the second row: ";
 	cin >> square1 >> square2 >> square3;
-	customrow.push_back(square1);
-	customrow.push_back(square2);
-	customrow.push_back(square3);
+	customrow.push_back(square1); customrow.push_back(square2); customrow.push_back(square3);
 	custom.push_back(customrow);
 	node->currentBoard.push_back(customrow);
 	customrow.clear();
 	cout << "Enter the third row: ";
 	cin >> square1 >> square2 >> square3;
-	customrow.push_back(square1);
-	customrow.push_back(square2);
-	customrow.push_back(square3);
+	customrow.push_back(square1); customrow.push_back(square2); customrow.push_back(square3);
 	custom.push_back(customrow);
 	node->currentBoard.push_back(customrow);
 	customrow.clear();
@@ -111,7 +112,7 @@ Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d
 	{
 		for (int j = 0; j < depth8.size(); j++)
 		{
-			cout << depth8[i][j];
+			cout << depth8[i][j] << " ";
 		}
 		cout << "\n";
 	}
@@ -132,22 +133,15 @@ void PuzzleNode::printNodes()
 	Node* currentNode = head;
 }
 
-int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int algorithmChoice)
+int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int queueingFunction)
 {
-	vector<vector<int>> finalState
-	{
-		{1, 2, 3},
-		{4, 5, 6},
-		{7, 8, 0}
-	};
-
 	int misplacedTilesNum = 0;
 
-	if (algorithmChoice == 1) // h(x) is hardcoded to 0 for uniform cost search
+	if (queueingFunction == 1) // h(x) is hardcoded to 0 for uniform cost search
 	{
 		// do nothing
 	}
-	else if (algorithmChoice == 2) // misplaced tiles calculation
+	else if (queueingFunction == 2) // misplaced tiles calculation
 	{
 		for (int i = 0; i < finalState.size(); i++)
 		{
@@ -160,7 +154,7 @@ int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int algorithmChoi
 			}
 		}
 	}
-	else if (algorithmChoice == 3) // manhattan distance calculation, referenced https://stackoverflow.com/questions/25611622/how-to-access-to-the-index-of-a-2d-vector-by-at-function to get "xy" coordinates of indices for the contents of the boards
+	else if (queueingFunction == 3) // manhattan distance calculation, referenced https://stackoverflow.com/questions/25611622/how-to-access-to-the-index-of-a-2d-vector-by-at-function to get "xy" coordinates of indices for the contents of the boards
 	{
 		for (int x2 = 0; x2 < finalState.size(); x2++)
 		{
@@ -185,8 +179,6 @@ int PuzzleNode::countMisplacedTiles(vector<vector<int>> board, int algorithmChoi
 // referenced https://www.gatevidyalay.com/tag/a-algorithm-for-8-puzzle-problem/ to better understand A* and how to get f(n)
 bool PuzzleNode::search(Node* node, int queueingFunction)
 {
-	int algorithmChoice = queueingFunction;
-
 	vector<vector<int>> finalState
 	{
 		{1, 2, 3},
@@ -203,7 +195,7 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 	if (node->currentBoard == finalState)
 	{
 		goal = true;
-		cout << "goal, " << nodesExpanded << "\n";
+		cout << "Goal! Expanded " << nodesExpanded << " nodes.\n\n";
 		return true;
 	}
 
@@ -239,39 +231,8 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap01[0][0], swap01[0][1]);
 		swap(swap10[0][0], swap10[1][0]);
 
-		Node* swap01Board = new Node;
-		swap01Board->currentBoard = swap01;
-		swap01Board->hn = countMisplacedTiles(swap01Board->currentBoard, algorithmChoice);
-		swap01Board->gn = node->gn + 1;
-		node->left = swap01Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap01Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap01Board);
-		gq.push(swap01Board);
-
-		Node* swap10Board = new Node;
-		swap10Board->currentBoard = swap10;
-		swap10Board->hn = countMisplacedTiles(swap10Board->currentBoard, algorithmChoice);
-		swap10Board->gn = node->gn + 1;
-		node->midleft = swap10Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap10Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap10Board);
-		gq.push(swap10Board);
-
-		nodesExpanded += 2;
+		left(node, queueingFunction, swap01);
+		midleft(node, queueingFunction, swap10);
 	}
 	else if (blankPosition == 1) // blank is [0, 1] top middle - check [0, 0], [0, 2], [1, 1]
 	{
@@ -283,55 +244,9 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap02[0][1], swap02[0][2]);
 		swap(swap11[0][1], swap11[1][1]);
 
-		Node* swap00Board = new Node;
-		swap00Board->currentBoard = swap00;
-		swap00Board->hn = countMisplacedTiles(swap00Board->currentBoard, algorithmChoice);
-		swap00Board->gn = node->gn + 1;
-		node->left = swap00Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap00Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap00Board);
-		gq.push(swap00Board);
-
-		Node* swap02Board = new Node;
-		swap02Board->currentBoard = swap02;
-		swap02Board->hn = countMisplacedTiles(swap02Board->currentBoard, algorithmChoice);
-		swap02Board->gn = node->gn + 1;
-		node->midleft = swap02Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap02Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap02Board);
-		gq.push(swap02Board);
-
-		Node* swap11Board = new Node;
-		swap11Board->currentBoard = swap11;
-		swap11Board->hn = countMisplacedTiles(swap11Board->currentBoard, algorithmChoice);
-		swap11Board->gn = node->gn + 1;
-		node->midright = swap11Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap11Board)
-			{
-				node->midright = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap11Board);
-		gq.push(swap11Board);
-
-		nodesExpanded += 3;
+		left(node, queueingFunction, swap00);
+		midleft(node, queueingFunction, swap02);
+		midright(node, queueingFunction, swap11);
 	}
 	else if (blankPosition == 2) // blank is [0, 2] top right - check [0, 1], [1, 2]
 	{
@@ -341,39 +256,8 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap01[0][2], swap01[0][1]);
 		swap(swap12[0][2], swap12[1][2]);
 
-		Node* swap01Board = new Node;
-		swap01Board->currentBoard = swap01;
-		swap01Board->hn = countMisplacedTiles(swap01Board->currentBoard, algorithmChoice);
-		swap01Board->gn = node->gn + 1;
-		node->left = swap01Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap01Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap01Board);
-		gq.push(swap01Board);
-
-		Node* swap12Board = new Node;
-		swap12Board->currentBoard = swap12;
-		swap12Board->hn = countMisplacedTiles(swap12Board->currentBoard, algorithmChoice);
-		swap12Board->gn = node->gn + 1;	
-		node->midleft = swap12Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap12Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap12Board);
-		gq.push(swap12Board);
-
-		nodesExpanded += 2;
+		left(node, queueingFunction, swap01);
+		midleft(node, queueingFunction, swap12);
 	}
 	else if (blankPosition == 3) // blank is [1, 0] middle left - check [0, 0], [1, 1], [2, 0]
 	{
@@ -385,55 +269,9 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap11[1][0], swap11[1][1]);
 		swap(swap20[1][0], swap20[2][0]);
 
-		Node* swap00Board = new Node;
-		swap00Board->currentBoard = swap00;
-		swap00Board->hn = countMisplacedTiles(swap00Board->currentBoard, algorithmChoice);
-		swap00Board->gn = node->gn + 1;
-		node->left = swap00Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap00Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap00Board);
-		gq.push(swap00Board);
-
-		Node* swap11Board = new Node;
-		swap11Board->currentBoard = swap11;
-		swap11Board->hn = countMisplacedTiles(swap11Board->currentBoard, algorithmChoice);
-		swap11Board->gn = node->gn + 1;
-		node->midleft = swap11Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap00Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}	
-		}
-		visitedNodes.push_back(swap11Board);
-		gq.push(swap11Board);
-
-		Node* swap20Board = new Node;
-		swap20Board->currentBoard = swap20;
-		swap20Board->hn = countMisplacedTiles(swap20Board->currentBoard, algorithmChoice);
-		swap20Board->gn = node->gn + 1;
-		node->midright = swap20Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap20Board)
-			{
-				node->midright = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap20Board);
-		gq.push(swap20Board);
-
-		nodesExpanded += 3;
+		left(node, queueingFunction, swap00);
+		midleft(node, queueingFunction, swap11);
+		midright(node, queueingFunction, swap20);
 	}
 	else if (blankPosition == 4) // blank is [1, 1] middle - check [1, 0], [0, 1], [1, 2], [2, 1]
 	{
@@ -447,71 +285,10 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap12[1][1], swap12[1][2]);
 		swap(swap21[1][1], swap21[2][1]);
 
-		Node* swap10Board = new Node;
-		swap10Board->currentBoard = swap10;
-		swap10Board->hn = countMisplacedTiles(swap10Board->currentBoard, algorithmChoice);
-		swap10Board->gn = node->gn + 1;
-		node->left = swap10Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap10Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap10Board);
-		gq.push(swap10Board);
-
-		Node* swap01Board = new Node;
-		swap01Board->currentBoard = swap01;
-		swap01Board->hn = countMisplacedTiles(swap01Board->currentBoard, algorithmChoice);
-		swap01Board->gn = node->gn + 1;
-		node->midleft = swap01Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap01Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap01Board);
-		gq.push(swap01Board);
-
-		Node* swap12Board = new Node;
-		swap12Board->currentBoard = swap12;
-		swap12Board->hn = countMisplacedTiles(swap12Board->currentBoard, algorithmChoice);
-		swap12Board->gn = node->gn + 1;
-		node->midright = swap12Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap12Board)
-			{
-				node->midright = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap12Board);
-		gq.push(swap12Board);
-
-		Node* swap21Board = new Node;
-		swap21Board->currentBoard = swap21;
-		swap21Board->hn = countMisplacedTiles(swap21Board->currentBoard, algorithmChoice);
-		swap21Board->gn = node->gn + 1;
-		node->right = swap21Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap21Board)
-			{
-				node->right = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap21Board);
-		gq.push(swap21Board);
-
-		nodesExpanded += 4;
+		left(node, queueingFunction, swap10);
+		midleft(node, queueingFunction, swap01);
+		midright(node, queueingFunction, swap12);
+		right(node, queueingFunction, swap21);
 	}
 	else if (blankPosition == 5) // blank is [1, 2] middle right - check [0, 2], [1, 1], [2, 2]
 	{
@@ -523,55 +300,9 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap11[1][2], swap11[1][1]);
 		swap(swap22[1][2], swap22[2][2]);
 
-		Node* swap02Board = new Node;
-		swap02Board->currentBoard = swap02;
-		swap02Board->hn = countMisplacedTiles(swap02Board->currentBoard, algorithmChoice);
-		swap02Board->gn = node->gn + 1;
-		node->left = swap02Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap02Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap02Board);
-		gq.push(swap02Board);
-
-		Node* swap11Board = new Node;
-		swap11Board->currentBoard = swap11;
-		swap11Board->hn = countMisplacedTiles(swap11Board->currentBoard, algorithmChoice);
-		swap11Board->gn = node->gn + 1;
-		node->midleft = swap11Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap11Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap11Board);
-		gq.push(swap11Board);
-
-		Node* swap22Board = new Node;
-		swap22Board->currentBoard = swap22;
-		swap22Board->hn = countMisplacedTiles(swap22Board->currentBoard, algorithmChoice);
-		swap22Board->gn = node->gn + 1;
-		node->midright = swap22Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap22Board)
-			{
-				node->midright = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap22Board);
-		gq.push(swap22Board);
-
-		nodesExpanded += 3;
+		left(node, queueingFunction, swap02);
+		midleft(node, queueingFunction, swap11);
+		midright(node, queueingFunction, swap22);
 	}
 	else if (blankPosition == 6) // blank is [2, 0] bottom left - check [1, 0], [2, 1]
 	{
@@ -581,39 +312,8 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap10[2][0], swap10[1][0]);
 		swap(swap21[2][0], swap21[2][1]);
 
-		Node* swap10Board = new Node;
-		swap10Board->currentBoard = swap10;
-		swap10Board->hn = countMisplacedTiles(swap10Board->currentBoard, algorithmChoice);
-		swap10Board->gn = node->gn + 1;
-		node->left = swap10Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap10Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap10Board);
-		gq.push(swap10Board);
-
-		Node* swap21Board = new Node;
-		swap21Board->currentBoard = swap21;
-		swap21Board->hn = countMisplacedTiles(swap21Board->currentBoard, algorithmChoice);
-		swap21Board->gn = node->gn + 1;
-		node->midleft = swap21Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap21Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap21Board);
-		gq.push(swap21Board);
-
-		nodesExpanded += 2;
+		left(node, queueingFunction, swap10);
+		midleft(node, queueingFunction, swap21);
 	}
 	else if (blankPosition == 7) // blank is [2, 1] bottom middle - check [2, 0], [1, 1], [2, 2]
 	{
@@ -625,55 +325,9 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap11[2][1], swap11[1][0]);
 		swap(swap22[2][1], swap22[2][2]);
 
-		Node* swap20Board = new Node;
-		swap20Board->currentBoard = swap20;
-		swap20Board->hn = countMisplacedTiles(swap20Board->currentBoard, algorithmChoice);
-		swap20Board->gn = node->gn + 1;
-		node->left = swap20Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap20Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap20Board);
-		gq.push(swap20Board);
-
-		Node* swap11Board = new Node;
-		swap11Board->currentBoard = swap11;
-		swap11Board->hn = countMisplacedTiles(swap11Board->currentBoard, algorithmChoice);
-		swap11Board->gn = node->gn + 1;
-		node->midleft = swap11Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap11Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap11Board);
-		gq.push(swap11Board);
-
-		Node* swap22Board = new Node;
-		swap22Board->currentBoard = swap22;
-		swap22Board->hn = countMisplacedTiles(swap22Board->currentBoard, algorithmChoice);
-		swap22Board->gn = node->gn + 1;
-		node->midright = swap22Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap22Board)
-			{
-				node->midright = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap22Board);
-		gq.push(swap22Board);
-
-		nodesExpanded += 3;
+		left(node, queueingFunction, swap20);
+		midleft(node, queueingFunction, swap11);
+		midright(node, queueingFunction, swap22);
 	}
 	else // blank is [2, 2] bottom right - check [1, 2], [2, 1]
 	{
@@ -683,44 +337,89 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		swap(swap12[2][2], swap12[1][2]);
 		swap(swap21[2][2], swap21[2][1]);
 
-		Node* swap12Board = new Node;
-		swap12Board->currentBoard = swap12;
-		swap12Board->hn = countMisplacedTiles(swap12Board->currentBoard, algorithmChoice);
-		swap12Board->gn = node->gn + 1;
-		node->left = swap12Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap12Board)
-			{
-				node->left = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap12Board);
-		gq.push(swap12Board);
-
-		Node* swap21Board = new Node;
-		swap21Board->currentBoard = swap21;
-		swap21Board->hn = countMisplacedTiles(swap21Board->currentBoard, algorithmChoice);
-		swap21Board->gn = node->gn + 1;
-		node->midleft = swap21Board;
-		for (int cnt = 0; cnt < visitedNodes.size(); cnt++)
-		{
-			if (visitedNodes.at(cnt) == swap21Board)
-			{
-				node->midleft = nullptr;
-				break;
-			}
-		}
-		visitedNodes.push_back(swap21Board);
-		gq.push(swap21Board);
-
-		nodesExpanded += 2;
+		left(node, queueingFunction, swap12);
+		midleft(node, queueingFunction, swap21);
 	}
 
 	if (gq.top())
 	{
-		search(gq.top(), algorithmChoice);
+		search(gq.top(), queueingFunction);
+	}
+	return false;
+}
+
+void PuzzleNode::left(Node* node, int queueingFunction, vector<vector<int>> board)
+{
+	if (!duplicateBoardChecker(board))
+	{
+		Node* swapBoard = new Node;
+		swapBoard->currentBoard = board;
+		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
+		swapBoard->gn = node->gn + 1;
+		node->left = swapBoard;
+		visitedNodes.push_back(swapBoard);
+		visitedBoards.push_back(board);
+		gq.push(swapBoard);
+		nodesExpanded++;
+	}
+}
+
+void PuzzleNode::midleft(Node* node, int queueingFunction, vector<vector<int>> board)
+{
+	if (!duplicateBoardChecker(board))
+	{
+		Node* swapBoard = new Node;
+		swapBoard->currentBoard = board;
+		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
+		swapBoard->gn = node->gn + 1;
+		node->midleft = swapBoard;
+		visitedNodes.push_back(swapBoard);
+		visitedBoards.push_back(board);
+		gq.push(swapBoard);
+		nodesExpanded++;
+	}
+}
+
+void PuzzleNode::midright(Node* node, int queueingFunction, vector<vector<int>> board)
+{
+	if (!duplicateBoardChecker(board))
+	{
+		Node* swapBoard = new Node;
+		swapBoard->currentBoard = board;
+		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
+		swapBoard->gn = node->gn + 1;
+		node->midright = swapBoard;
+		visitedNodes.push_back(swapBoard);
+		visitedBoards.push_back(board);
+		gq.push(swapBoard);
+		nodesExpanded++;
+	}
+}
+
+void PuzzleNode::right(Node* node, int queueingFunction, vector<vector<int>> board)
+{
+	if (!duplicateBoardChecker(board))
+	{
+		Node* swapBoard = new Node;
+		swapBoard->currentBoard = board;
+		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
+		swapBoard->gn = node->gn + 1;
+		node->right = swapBoard;
+		visitedNodes.push_back(swapBoard);
+		visitedBoards.push_back(board);
+		gq.push(swapBoard);
+		nodesExpanded++;
+	}
+}
+
+bool PuzzleNode::duplicateBoardChecker(vector<vector<int>> board)
+{
+	for (int cnt = 0; cnt < visitedBoards.size(); cnt++)
+	{
+		if (visitedBoards[cnt] == board)
+		{
+			return true;
+		}
 	}
 	return false;
 }
