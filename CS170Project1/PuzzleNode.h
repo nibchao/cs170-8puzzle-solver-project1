@@ -37,17 +37,17 @@ class PuzzleNode
 			}
 	};
 	private:
-		Node* head;
 		int nodesExpanded;
 		bool goal;
 		priority_queue<Node*, vector<Node*>, customComparisonClass> gq; // referenced https://www.geeksforgeeks.org/priority-queue-in-cpp-stl/ and https://www.geeksforgeeks.org/implement-min-heap-using-stl/ for how to make a min-heap using priority queue to put lowest f(n) = g(n) + h(n)
-		vector<Node*> visitedNodes;
 		vector<vector<vector<int>>> visitedBoards;
+		int maxQueueSize;
+		int solutionDepth;
 	public:
 		PuzzleNode();
 		Node* createPuzzle();
 		Node* defaultPuzzle();
-		void printBoard(vector<vector<int>>);
+		void printBoard(Node*);
 		int countMisplacedTiles(vector<vector<int>>, int);
 		bool search(Node*, int);
 		void child(Node*, int, vector<vector<int>>);

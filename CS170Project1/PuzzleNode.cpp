@@ -9,9 +9,10 @@ vector<vector<int>> finalState
 
 PuzzleNode::PuzzleNode()
 {
-	head = nullptr;
 	nodesExpanded = 0;
 	goal = false;
+	maxQueueSize = 0;
+	solutionDepth = 0;
 }
 
 Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-vector-in-cpp-with-user-defined-size/ on how to create 2D vector with values
@@ -23,7 +24,6 @@ Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-
 	vector<vector<int>> custom;
 	vector<int> customrow;
 
-	custom.clear(); customrow.clear();
 	int square1 = 0, square2 = 0, square3 = 0;
 
 	cout << "\nEnter your own puzzle using 0 as the blank square. Put a space in between your numbers.\n";
@@ -36,9 +36,7 @@ Node* PuzzleNode::createPuzzle() // referenced https://www.geeksforgeeks.org/2d-
 		node->currentBoard.push_back(customrow);
 		customrow.clear();
 	}
-	printBoard(custom);
-
-	head = node;
+	printBoard(node);
 	gq.push(node);
 	return node;
 }
@@ -55,25 +53,22 @@ Node* PuzzleNode::defaultPuzzle() // referenced https://www.geeksforgeeks.org/2d
 		{5, 0, 2},
 		{4, 7, 8}
 	};
-
-	printBoard(depth8);
 	node->currentBoard.push_back(depth8[0]);
 	node->currentBoard.push_back(depth8[1]);
 	node->currentBoard.push_back(depth8[2]);
-
-	head = node;
+	printBoard(node);
 	gq.push(node);
 	return node;
 }
 
-void PuzzleNode::printBoard(vector<vector<int>> board)
+void PuzzleNode::printBoard(Node* node)
 {
-	cout << "\nThe game board is\n";
-	for (int i = 0; i < board.size(); i++)
+	cout << "The best state to expand with a g(n) = " << node->gn << " and h(n) = " << node->hn << " is...\n";
+	for (int i = 0; i < node->currentBoard.size(); i++)
 	{
-		for (int j = 0; j < board.size(); j++)
+		for (int j = 0; j < node->currentBoard.size(); j++)
 		{
-			cout << board[i][j] << " ";
+			cout << node->currentBoard[i][j] << " ";
 		}
 		cout << "\n";
 	}
@@ -130,12 +125,15 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 	if (node->currentBoard == finalState)
 	{
 		goal = true;
-		cout << "Goal! Expanded " << nodesExpanded << " nodes.\n";
+		cout << "Goal!\n";
+		cout << "Max Solution Depth: " << solutionDepth << "\n";
+		cout << "Nodes Expanded: " << nodesExpanded << "\n";
+		cout << "Max Queue Size: " << maxQueueSize << "\n";
+		
 		return true;
 	}
 
 	int blankPosition = 0;
-
 	bool stop = false;
 	for (int i = 0; i < finalState.size() && !stop; i++) // referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops
 	{
@@ -275,9 +273,17 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		child(node, queueingFunction, swap12);
 		child(node, queueingFunction, swap21);
 	}
-
+	if (maxQueueSize < gq.size())
+	{
+		maxQueueSize = gq.size();
+	}
+	if (solutionDepth < gq.top()->gn)
+	{
+		solutionDepth = gq.top()->gn;
+	}
 	if (gq.top())
 	{
+		printBoard(gq.top());
 		search(gq.top(), queueingFunction);
 	}
 	return false;
@@ -307,7 +313,6 @@ void PuzzleNode::child(Node* node, int queueingFunction, vector<vector<int>> boa
 		{
 			node->right = swapBoard;
 		}
-		visitedNodes.push_back(swapBoard);
 		visitedBoards.push_back(board);
 		gq.push(swapBoard);
 		nodesExpanded++;
