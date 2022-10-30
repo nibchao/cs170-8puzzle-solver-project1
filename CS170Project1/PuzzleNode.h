@@ -59,5 +59,7 @@ class PuzzleNode
 		bool search(Node*, int);
 		void child(Node*, int, vector<vector<int>>);
 		bool duplicateBoardChecker(vector<vector<int>>);
+		int getBlankTilePosition(Node*);
+		void queue(Node*, int, int);
 };
 #endif

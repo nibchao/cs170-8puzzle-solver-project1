@@ -149,12 +149,67 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		
 		return true;
 	}
+	int blankTilePosition = getBlankTilePosition(node);
+	queue(node, queueingFunction, blankTilePosition);
+	search(gq.top(), queueingFunction);
+	return false;
+}
 
-	/*
-	* referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops to implement stop to break out of nested for-loop
-	* used idea of moving the blank tile instead of a number to achieve goal
-	* this loop finds the index of the 0 "blank" tile in the current node's game board
-	*/
+/*
+* function that creates a new child node containing the board with swapped values and g(n) + 1 to represent one level "deeper" on the tree
+*/
+void PuzzleNode::child(Node* node, int queueingFunction, vector<vector<int>> board)
+{
+	if (!duplicateBoardChecker(board)) // checks if the swapped board is duplicate or not; if it is, don't create a new node
+	{
+		Node* swapBoard = new Node;
+		swapBoard->currentBoard = board;
+		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
+		swapBoard->gn = node->gn + 1;
+		if (node->left == nullptr)
+		{
+			node->left = swapBoard;
+		}
+		else if (node->midleft == nullptr)
+		{
+			node->midleft = swapBoard;
+		}
+		else if (node->midright == nullptr)
+		{
+			node->midright = swapBoard;
+		}
+		else if (node->right == nullptr)
+		{
+			node->right = swapBoard;
+		}
+		visitedBoards.push_back(board);
+		gq.push(swapBoard);
+		nodesExpanded++;
+	}
+}
+
+/*
+* checks for duplicate boards by looping through a vector containing 2D vectors and searches for any matches with passed in board parameter
+*/
+bool PuzzleNode::duplicateBoardChecker(vector<vector<int>> board)
+{
+	for (int cnt = 0; cnt < visitedBoards.size(); cnt++)
+	{
+		if (visitedBoards[cnt] == board)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/*
+* referenced https://stackoverflow.com/questions/9695902/how-to-break-out-of-nested-loops to implement stop to break out of nested for-loop
+* used idea of moving the blank tile instead of a number to achieve goal
+* this loop finds the index of the 0 "blank" tile in the current node's game board
+*/
+int PuzzleNode::getBlankTilePosition(Node* node)
+{
 	int blankPosition = 0;
 	bool stop = false;
 	for (int i = 0; i < finalState.size() && !stop; i++)
@@ -173,19 +228,23 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 			blankPosition++;
 		}
 	}
+	return blankPosition;
+}
 
+/*
+* board is [y, x] instead of [x, y]
+*
+* [ 0, 0 ], [ 0, 1 ], [ 0, 2 ]
+* [ 1, 0 ], [ 1, 1 ], [ 1, 2 ]
+* [ 2, 0 ], [ 2, 1 ], [ 2, 2 ]
+*
+* the nodes = "QUEUEING-FUNCTION" line is represented by this lengthy if-else if chain
+* creates clone game boards then swaps certain values depending on the neighbors of the 0 "blank" tile
+* sets the current node's childs (up to 4 child nodes) equal to a new node with the swapped game board values
+*/
+void PuzzleNode::queue(Node* node, int queueingFunction, int blankPosition)
+{
 	
-	/*
-	* board is [y, x] instead of [x, y]
-	* 
-	* [ 0, 0 ], [ 0, 1 ], [ 0, 2 ]
-	* [ 1, 0 ], [ 1, 1 ], [ 1, 2 ]
-	* [ 2, 0 ], [ 2, 1 ], [ 2, 2 ]
-	* 
-	* the nodes = "QUEUEING-FUNCTION" line is represented by this lengthy if-else if chain
-	* creates clone game boards then swaps certain values depending on the neighbors of the 0 "blank" tile
-	* sets the current node's childs (up to 4 child nodes) equal to a new node with the swapped game board values
-	*/
 	if (blankPosition == 0) // blank is [0, 0] top left - check [0, 1] and [1, 0]
 	{
 		vector<vector<int>> swap01 = node->currentBoard;
@@ -313,54 +372,4 @@ bool PuzzleNode::search(Node* node, int queueingFunction)
 		solutionDepth = gq.top()->gn;
 	}
 	printBoard(gq.top());
-	search(gq.top(), queueingFunction);
-	return false;
-}
-
-/*
-* function that creates a new child node containing the board with swapped values and g(n) + 1 to represent one level "deeper" on the tree
-*/
-void PuzzleNode::child(Node* node, int queueingFunction, vector<vector<int>> board)
-{
-	if (!duplicateBoardChecker(board)) // checks if the swapped board is duplicate or not; if it is, don't create a new node
-	{
-		Node* swapBoard = new Node;
-		swapBoard->currentBoard = board;
-		swapBoard->hn = countMisplacedTiles(swapBoard->currentBoard, queueingFunction);
-		swapBoard->gn = node->gn + 1;
-		if (node->left == nullptr)
-		{
-			node->left = swapBoard;
-		}
-		else if (node->midleft == nullptr)
-		{
-			node->midleft = swapBoard;
-		}
-		else if (node->midright == nullptr)
-		{
-			node->midright = swapBoard;
-		}
-		else if (node->right == nullptr)
-		{
-			node->right = swapBoard;
-		}
-		visitedBoards.push_back(board);
-		gq.push(swapBoard);
-		nodesExpanded++;
-	}
-}
-
-/*
-* checks for duplicate boards by looping through a vector containing 2D vectors and searches for any matches with passed in board parameter
-*/
-bool PuzzleNode::duplicateBoardChecker(vector<vector<int>> board)
-{
-	for (int cnt = 0; cnt < visitedBoards.size(); cnt++)
-	{
-		if (visitedBoards[cnt] == board)
-		{
-			return true;
-		}
-	}
-	return false;
 }
