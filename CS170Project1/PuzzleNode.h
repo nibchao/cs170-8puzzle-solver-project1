@@ -24,9 +24,9 @@ class PuzzleNode
 	class customComparisonClass // referenced https://stackoverflow.com/questions/16111337/declaring-a-priority-queue-in-c-with-a-custom-comparator on how to make custom comparison function instead of default greater<int> from other priority queue source i referenced
 	{
 		public:
-			bool operator()(Node* node1, Node* node2)
+			bool operator()(Node* board1, Node* board2)
 			{
-				if (node1->hn + node1->gn > node2->hn + node2->gn)
+				if (board1->hn + board1->gn > board2->hn + board2->gn)
 				{
 					return true;
 				}
@@ -47,13 +47,10 @@ class PuzzleNode
 		PuzzleNode();
 		Node* createPuzzle();
 		Node* defaultPuzzle();
-		void printNodes();
+		void printBoard(vector<vector<int>>);
 		int countMisplacedTiles(vector<vector<int>>, int);
 		bool search(Node*, int);
-		void left(Node*, int, vector<vector<int>>);
-		void midleft(Node*, int, vector<vector<int>>);
-		void midright(Node*, int, vector<vector<int>>);
-		void right(Node*, int, vector<vector<int>>);
+		void child(Node*, int, vector<vector<int>>);
 		bool duplicateBoardChecker(vector<vector<int>>);
 };
 #endif
